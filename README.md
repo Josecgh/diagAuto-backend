@@ -1,6 +1,6 @@
 # diagAuto backend
 
-API REST con Spring Boot, JPA y H2 en memoria.
+API REST con Spring Boot, JPA, H2 y autenticación JWT en cookies.
 
 ## Ejecutar
 
@@ -8,35 +8,23 @@ API REST con Spring Boot, JPA y H2 en memoria.
 mvn spring-boot:run
 ```
 
-## Endpoints
+## Flujo de autenticación
 
-| Método | Ruta | Acción |
-|---|---|---|
-| GET | `/api/users` | Listar usuarios (sin contraseña) |
-| GET | `/api/users/{id}` | Consultar usuario |
-| POST | `/api/users` | Crear usuario |
-| PUT | `/api/users/{id}` | Actualizar usuario |
-| DELETE | `/api/users/{id}` | Eliminar usuario y sus vehículos |
-| GET | `/api/vehicles` | Listar vehículos; admite `?userId={id}` |
-| GET | `/api/vehicles/{id}` | Consultar vehículo |
-| POST | `/api/vehicles` | Crear vehículo |
-| PUT | `/api/vehicles/{id}` | Actualizar vehículo |
-| DELETE | `/api/vehicles/{id}` | Eliminar vehículo |
+Los POST protegidos por CSRF requieren el valor de la cookie `XSRF-TOKEN` también en el encabezado `X-XSRF-TOKEN`.
 
-Las peticiones POST/PUT reciben JSON. Para crear un usuario:
+1. Haz `GET http://localhost:8080/api/auth/csrf`. Guarda el valor devuelto y conserva la cookie `XSRF-TOKEN`.
+2. Registra la cuenta con `POST /api/users` y envía `X-XSRF-TOKEN` con ese valor. JSON:
 
-```json
-{"email":"persona@example.com","password":"clave","accountStatus":"ACTIVE"}
-```
+   ```json
+   {"email":"persona@example.com","password":"clave1234","name":"Ana","lastName":"Pérez"}
+   ```
 
-Para crear un vehículo, incluya `userId` con el usuario propietario:
+3. Haz `POST /api/auth/login` con el mismo encabezado y JSON `{"email":"persona@example.com","password":"clave1234"}`. La respuesta entrega el perfil y establece las cookies `access_token` y `refresh_token`.
+4. Usa `GET /api/auth/me` para obtener el perfil autenticado. El cliente debe conservar y enviar las cookies.
+5. Usa `POST /api/auth/refresh` para renovar las cookies o `POST /api/auth/logout` para eliminarlas. Ambos POST requieren el encabezado CSRF.
 
-```json
-{"vehicleType":"car","brand":"Toyota","model":"Corolla","plate":"1234ABC","kilometers":45000,"hasFault":false,"faultDescription":null,"userId":1}
-```
+Las rutas están bajo `/api/auth`: `GET /csrf`, `POST /login`, `POST /refresh`, `POST /logout` y `GET /me`. El registro está en `POST /api/users`.
 
-H2 es temporal: los datos se borran al detener la aplicación. La contraseña de la entidad de usuario se guarda como texto por ahora; debe almacenarse con hash antes de usar el backend con datos reales.
+En local, `app.cookie.secure` es `false` para permitir HTTP. En HTTPS configura `COOKIE_SECURE=true`. El secreto JWT de `application.properties` es solo para desarrollo local; en otros entornos define `JWT_SECRET` como un secreto Base64 de al menos 32 bytes.
 
-## Acceso HTTP
-
-`POST /api/users` queda abierto para permitir el registro. El resto de rutas requiere autenticación HTTP Basic. Al no existir todavía un sistema de login/JWT ni una conexión entre Spring Security y los usuarios de la aplicación, Spring Boot crea un usuario temporal `user` y muestra su contraseña en la consola al arrancar. No uses esta configuración temporal en producción.
+H2 está en memoria y borra los datos al detener la aplicación. El refresh token es stateless: el logout limpia las cookies del cliente, pero un token ya copiado sigue siendo válido hasta que expire.
