@@ -1,6 +1,7 @@
 package com.auto.user;
 
 import com.auto.enums.AccountStatus;
+import com.auto.contracts.IUserService;
 import com.auto.mappers.UserMapper;
 import com.auto.user.dto.UserDTORequest;
 import com.auto.user.dto.UserDTOResponse;
@@ -14,12 +15,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements IUserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
+  @Override
   public UserDTOResponse createUser(UserDTORequest request) {
     if (userRepository.existsByEmail(request.email())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
@@ -37,6 +39,7 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
+  @Override
   public UserDTOResponse getUserById(Long id, String authenticatedEmail) {
     UserEntity user = userRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

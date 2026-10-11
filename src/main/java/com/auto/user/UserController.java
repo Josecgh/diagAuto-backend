@@ -1,5 +1,6 @@
 package com.auto.user;
 
+import com.auto.contracts.IUserService;
 import com.auto.user.dto.UserDTOResponse;
 import com.auto.user.dto.UserDTORequest;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserService userService;
+  private final IUserService userService;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
