@@ -1,5 +1,6 @@
 package com.auto.secure;
 
+import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +43,8 @@ public class SecurityConfiguration {
         csrfRepository.setCookieCustomizer(cookie -> cookie
                 .path("/")
                 .secure(secureCookies)
-                .sameSite(sameSite));
+                .sameSite(sameSite)
+                .maxAge(Duration.ofMinutes(15)));
 
         return http
                 .csrf(csrf -> csrf
@@ -53,7 +55,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/vehicles/").authenticated())
+                        .requestMatchers(HttpMethod.POST,"/api/vehicles", "/api/vehicles/**").authenticated())
                 .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .build();

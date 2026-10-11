@@ -22,6 +22,22 @@ Los POST protegidos por CSRF requieren el valor de la cookie `XSRF-TOKEN` tambi�
 3. Haz `POST /api/auth/login` con el mismo encabezado y JSON `{"email":"persona@example.com","password":"clave1234"}`. La respuesta entrega el perfil y establece las cookies `access_token` y `refresh_token`.
 4. Usa `GET /api/auth/me` para obtener el perfil autenticado. El cliente debe conservar y enviar las cookies.
 5. Usa `POST /api/auth/refresh` para renovar las cookies o `POST /api/auth/logout` para eliminarlas. Ambos POST requieren el encabezado CSRF.
+6. Para crear un vehÃ­culo, envÃ­a `POST /api/vehicles` con el mismo encabezado `X-XSRF-TOKEN` y conserva las cookies de login (`access_token`) y CSRF (`XSRF-TOKEN`). En Postman, activa el cookie jar para `localhost`. Ejemplo de body:
+
+   ```json
+   {
+     "vehicleType": "CAR",
+     "brand": "Seat",
+     "model": "Ibiza",
+     "plate": "1234ABC",
+     "kilometres": 42000,
+     "hasFault": false,
+     "technicalInspectionDate": "2026-05-01",
+     "faultDescription": null
+   }
+   ```
+
+   El usuario debe iniciar sesiÃ³n antes de crear vehÃ­culos. Las rutas `GET /api/vehicles` y `GET /api/vehicles/{id}`, `PUT /api/vehicles/{id}` y `DELETE /api/vehicles/{id}` tambiÃ©n requieren autenticaciÃ³n.
 
 Las rutas están bajo `/api/auth`: `GET /csrf`, `POST /login`, `POST /refresh`, `POST /logout` y `GET /me`. El registro está en `POST /api/users`.
 
