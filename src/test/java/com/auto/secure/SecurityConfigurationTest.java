@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,11 +37,6 @@ class SecurityConfigurationTest {
   }
 
   @Test
-  void csrfEndpointIsPublic() throws Exception {
-    mockMvc.perform(get("/api/auth/csrf"))
-        .andExpect(status().isOk());
-  }
-
   @Test
   void protectedEndpointRejectsAnonymousRequest() throws Exception {
     mockMvc.perform(get("/api/auth/me"))
@@ -50,8 +44,8 @@ class SecurityConfigurationTest {
   }
 
   @Test
-  void vehicleCreationRequiresAuthenticationEvenWithCsrfToken() throws Exception {
-    mockMvc.perform(post("/api/vehicles/").with(csrf()))
+  void vehicleCreationRequiresAuthentication() throws Exception {
+    mockMvc.perform(post("/api/vehicles/"))
         .andExpect(status().isForbidden());
   }
 }

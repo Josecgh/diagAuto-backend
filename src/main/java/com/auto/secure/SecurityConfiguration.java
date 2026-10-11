@@ -1,9 +1,7 @@
 package com.auto.secure;
 
-import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -12,62 +10,43 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+  @Bean
+  SecurityFilterChain securityFilterChain(
+      HttpSecurity http,
+      SecurityContextRepository securityContextRepository) throws Exception {
+    return http
+        .csrf(csrf -> csrf.disable())
+        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+        .securityContext(context -> context.securityContextRepository(securityContextRepository))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/h2-console/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout").permitAll()
+            .requestMatchers("/api/vehicles", "/api/vehicles/**").authenticated())
+        .build();
+  }
 
-    @Value("${app.cookie.secure:false}")
-    private boolean secureCookies;
+  @Bean
+  SecurityContextRepository securityContextRepository() {
+    return new HttpSessionSecurityContextRepository();
+  }
 
-    @Value("${app.cookie.same-site:Strict}")
-    private String sameSite;
+  @Bean
+  AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    return configuration.getAuthenticationManager();
+  }
 
-    public SecurityConfiguration(JwtService jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
-    }
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        CookieCsrfTokenRepository csrfRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfRepository.setCookieCustomizer(cookie -> cookie
-                .path("/")
-                .secure(secureCookies)
-                .sameSite(sameSite)
-                .maxAge(Duration.ofMinutes(15)));
-
-        return http
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(csrfRepository)
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/vehicles", "/api/vehicles/**").authenticated())
-                .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
-
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }
