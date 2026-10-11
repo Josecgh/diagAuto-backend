@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:securitytest;DB_CLOSE_DELAY=-1")
 @AutoConfigureMockMvc
 class SecurityConfigurationTest {
 
@@ -36,7 +36,6 @@ class SecurityConfigurationTest {
     assertTrue(passwordEncoder.matches("password123", encoded));
   }
 
-  @Test
   @Test
   void protectedEndpointRejectsAnonymousRequest() throws Exception {
     mockMvc.perform(get("/api/auth/me"))
