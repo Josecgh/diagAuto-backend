@@ -1,15 +1,15 @@
 package com.auto.user;
 
-import com.auto.mappers.UserMapper;
 import com.auto.enums.AccountStatus;
+import com.auto.mappers.UserMapper;
 import com.auto.user.dto.UserDTORequest;
 import com.auto.user.dto.UserDTOResponse;
 import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
