@@ -8,7 +8,6 @@ import lombok.Builder;
 public record UserDTOResponse(
   Long id,
   String email,
-  String password,
   String name,
   String lastName,
   AccountStatus accountStatus
