@@ -28,10 +28,30 @@ class JwtServiceTest {
   }
 
   @Test
+  void generatedRefreshTokenContainsEmailForRefreshType() {
+    JwtService service = new JwtService(SECRET, 15, 7);
+    String token = service.generateToken("ana@example.com", JwtService.TokenType.REFRESH);
+
+    assertEquals("ana@example.com",
+        service.getEmail(token, JwtService.TokenType.REFRESH).orElseThrow());
+  }
+
+  @Test
+  void rejectsTokenSignedWithAnotherSecret() {
+    JwtService issuer = new JwtService(SECRET, 15, 7);
+    JwtService verifier = new JwtService(
+        "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXphYmNkZWY=", 15, 7);
+    String token = issuer.generateToken("ana@example.com", JwtService.TokenType.ACCESS);
+
+    assertTrue(verifier.getEmail(token, JwtService.TokenType.ACCESS).isEmpty());
+  }
+
+  @Test
   void invalidAndMissingTokensReturnEmpty() {
     JwtService service = new JwtService(SECRET, 15, 7);
 
     assertTrue(service.getEmail(null, JwtService.TokenType.ACCESS).isEmpty());
+    assertTrue(service.getEmail("  ", JwtService.TokenType.ACCESS).isEmpty());
     assertTrue(service.getEmail("not-a-jwt", JwtService.TokenType.ACCESS).isEmpty());
   }
 }
