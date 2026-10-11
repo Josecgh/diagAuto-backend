@@ -14,7 +14,7 @@ public record VehicleDTOResponse(
   String plate,
   Long kilometres,
   Boolean hasFault,
-  LocalDate tecnicalInspectionDtae,
+  LocalDate technicalInspectionDate,
   String faultDescription,
   Long userId
 ) {
