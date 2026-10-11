@@ -1,6 +1,11 @@
 package com.auto.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.auto.enums.AccountStatus;
+import com.auto.vehicles.VehicleEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -43,6 +49,9 @@ public class UserEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "account_status", nullable = false)
   private AccountStatus accountStatus;
+
+  @OneToMany(mappedBy = "user")
+  private List<VehicleEntity> vehicles = new ArrayList<>();
 
   @Builder
   public UserEntity(String email, String password, String name, String lastName, AccountStatus accountStatus) {
