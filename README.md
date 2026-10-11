@@ -43,4 +43,4 @@ Las rutas están bajo `/api/auth`: `GET /csrf`, `POST /login`, `POST /refresh`, 
 
 En local, `app.cookie.secure` es `false` para permitir HTTP. En HTTPS configura `COOKIE_SECURE=true`. El secreto JWT de `application.properties` es solo para desarrollo local; en otros entornos define `JWT_SECRET` como un secreto Base64 de al menos 32 bytes.
 
-H2 está en memoria y borra los datos al detener la aplicación. El refresh token es stateless: el logout limpia las cookies del cliente, pero un token ya copiado sigue siendo válido hasta que expire.
+The local H2 database is stored at ./data/diagauto.mv.db and persists across app restarts. Set DB_URL to use another database.

@@ -55,7 +55,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/api/vehicles", "/api/vehicles/**").authenticated())
+                        .requestMatchers(HttpMethod.GET,"/api/vehicles", "/api/vehicles/**").authenticated())
                 .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .build();
