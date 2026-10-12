@@ -22,6 +22,7 @@ public class UserController {
 
   private final IUserService userService;
 
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public UserDTOResponse createUser(@Valid @RequestBody UserDTORequest request) {

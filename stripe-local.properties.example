@@ -1,0 +1,4 @@
+# Copy to stripe-local.properties (ignored by Git). Test keys only.
+stripe.secret-key=sk_test_REPLACE_LOCALLY
+stripe.webhook-secret=whsec_REPLACE_WITH_STRIPE_CLI_SECRET
+stripe.frontend-url=http://localhost:4200

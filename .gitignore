@@ -1,4 +1,7 @@
 /target/
+/stripe-local.properties
+.env
+.env.*
 /data/*.mv.db
 /data/*.trace.db
 /data/*.lock.db

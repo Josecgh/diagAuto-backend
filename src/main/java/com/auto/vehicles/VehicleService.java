@@ -1,6 +1,7 @@
 package com.auto.vehicles;
 
 import com.auto.contracts.IVehicleService;
+import com.auto.enums.AccountStatus;
 import com.auto.mappers.VehicleMapper;
 import com.auto.user.UserEntity;
 import com.auto.user.UserRepository;
@@ -24,6 +25,10 @@ public class VehicleService implements IVehicleService {
   @Transactional
   public VehicleDTOResponse create(VehicleDTORequest request, String ownerEmail) {
     UserEntity owner = findUser(ownerEmail);
+    if (owner.getAccountStatus() != AccountStatus.PREMIUM
+        && vehicleRepository.countByUser_Email(ownerEmail) >= 4) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "FREE_VEHICLE_LIMIT");
+    }
     VehicleEntity vehicle = VehicleMapper.toEntity(request, owner);
     return VehicleMapper.toDTO(vehicleRepository.save(vehicle));
   }
@@ -62,7 +67,7 @@ public class VehicleService implements IVehicleService {
   }
 
   private UserEntity findUser(String email) {
-    return userRepository.findByEmail(email)
+    return userRepository.findByEmailForUpdate(email)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
   }
 }

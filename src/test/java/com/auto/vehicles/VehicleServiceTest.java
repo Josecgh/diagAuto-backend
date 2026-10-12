@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import com.auto.enums.AccountStatus;
@@ -35,7 +36,7 @@ class VehicleServiceTest {
   void createAssociatesVehicleWithItsOwner() {
     UserEntity owner = owner("ana@example.com");
     VehicleDTORequest request = request("1234ABC");
-    when(userRepository.findByEmail(owner.getEmail())).thenReturn(Optional.of(owner));
+    when(userRepository.findByEmailForUpdate(owner.getEmail())).thenReturn(Optional.of(owner));
     when(vehicleRepository.save(any(VehicleEntity.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -104,6 +105,37 @@ class VehicleServiceTest {
         .lastName("López")
         .accountStatus(AccountStatus.FREE)
         .build();
+  }
+
+  @Test
+  void freePlanCanCreateFourthVehicle() {
+    UserEntity owner = owner("ana@example.com");
+    when(userRepository.findByEmailForUpdate(owner.getEmail())).thenReturn(Optional.of(owner));
+    when(vehicleRepository.countByUser_Email(owner.getEmail())).thenReturn(3L);
+    when(vehicleRepository.save(any(VehicleEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    vehicleService.create(request("1234ABC"), owner.getEmail());
+    verify(vehicleRepository).save(any(VehicleEntity.class));
+  }
+
+  @Test
+  void freePlanCannotCreateFifthVehicle() {
+    UserEntity owner = owner("ana@example.com");
+    when(userRepository.findByEmailForUpdate(owner.getEmail())).thenReturn(Optional.of(owner));
+    when(vehicleRepository.countByUser_Email(owner.getEmail())).thenReturn(4L);
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+        () -> vehicleService.create(request("1234ABC"), owner.getEmail()));
+    assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+    verify(vehicleRepository, never()).save(any(VehicleEntity.class));
+  }
+
+  @Test
+  void premiumCanCreateFifthVehicle() {
+    UserEntity owner = owner("ana@example.com");
+    owner.setAccountStatus(AccountStatus.PREMIUM);
+    when(userRepository.findByEmailForUpdate(owner.getEmail())).thenReturn(Optional.of(owner));
+    when(vehicleRepository.save(any(VehicleEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    vehicleService.create(request("1234ABC"), owner.getEmail());
+    verify(vehicleRepository).save(any(VehicleEntity.class));
   }
 
   private VehicleEntity vehicle(String plate, UserEntity owner) {
