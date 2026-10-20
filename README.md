@@ -4,8 +4,8 @@ API REST para gestionar usuarios y sus vehículos, registrar averías y consulta
 
 ## Tecnologías
 
-- Java 17 o superior.
-- Spring Boot 3.3.5 y Maven.
+- Java 25 (JDK).
+- Spring Boot 3.5.7 y Maven.
 - Spring Web, Spring Security, Spring Data JPA y Bean Validation.
 - H2 con persistencia en archivo.
 - BCrypt para las contraseñas y Lombok.
@@ -15,6 +15,19 @@ API REST para gestionar usuarios y sus vehículos, registrar averías y consulta
 ## Ejecutar en local
 
 Desde la carpeta `diagAuto-backend`:
+
+Comprueba con `mvn -version` que Maven utiliza Java 25. En PowerShell, si utiliza otro JDK:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-25'
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+```
+
+Para compilar y ejecutar las pruebas:
+
+```bash
+mvn clean verify
+```
 
 ```bash
 mvn spring-boot:run
