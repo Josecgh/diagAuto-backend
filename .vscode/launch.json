@@ -1,0 +1,13 @@
+﻿{
+    "version":  "0.2.0",
+    "configurations":  [
+                           {
+                               "type":  "java",
+                               "name":  "DiagAuto Backend",
+                               "request":  "launch",
+                               "mainClass":  "com.auto.Main",
+                               "cwd":  "${workspaceFolder}",
+                               "preLaunchTask":  "Compilar backend con Maven"
+                           }
+                       ]
+}
