@@ -1,0 +1,12 @@
+services:
+  backend:
+    build: ./diagAuto-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: "jdbc:h2:file:/data/diagauto;DB_CLOSE_ON_EXIT=FALSE"
+    volumes:
+      - h2-data:/data
+
+volumes:
+  h2-data:
