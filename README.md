@@ -33,6 +33,18 @@ mvn clean verify
 mvn spring-boot:run
 ```
 
+Para ejecutar el backend:
+
+```powershell
+docker compose up -d
+```
+
+Para cerrar la bases de datos:
+
+```powershell
+docker compose down
+```
+
 En PowerShell puedes usar `mvn.cmd`. También puedes ejecutar `src/main/java/com/auto/Main.java` desde el IDE.
 
 | Servicio | Dirección |
