@@ -65,7 +65,7 @@ La base de datos se guarda en `./data/diagauto.mv.db` y conserva los datos entre
 | --- | --- |
 | Saved Settings | `Generic H2 (Embedded)` |
 | Driver Class | `org.h2.Driver` |
-| JDBC URL | `jdbc:h2:file:./data/diagauto;DB_CLOSE_ON_EXIT=FALSE` |
+| JDBC URL | `jdbc:h2:file:/data/diagauto;DB_CLOSE_ON_EXIT=FALSE` |
 | User Name | `sa` |
 | Password | Déjalo vacío |
 
